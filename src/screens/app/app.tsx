@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CustomStatusBar } from '../../components/atoms/custom-status-bar/custom-status-bar';
 import { Loader } from '../../components/molecules/loader/loader';
 import { addDataEntry, deleteDataEntry, getAllDataEntries, updateDataEntry } from '../../services/api/client';
@@ -45,25 +45,43 @@ export const App = () => {
       })
   };
 
-  useEffect(() => {
-    const getInfo = async () => {
-      try {
-        const data = await getAllDataEntries();  
-        setData(data.reverse());   
-      } catch (error) {
-        setIsError(true);
-      } finally {
-        setIsLoading(false);
-        if (data.length !== 0)
-        setIsOpen(true);
-      }
+  const getInfo = async () => {
+    try {
+      const data = await getAllDataEntries();  
+      setData(data.reverse());   
+    } catch (error) {
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
+      if (data.length !== 0)
+      setIsOpen(true);
     }
+  }
+
+  useEffect(() => {
     
     if ((isPendingReq === false && data.length !== 0) || data.length === 0){
       setIsLoading(true);
       getInfo()
     }
-  }, [isPendingReq]);    
+  }, [isPendingReq]);  
+    
+  const dataEntries = useMemo(() => {
+    return data.map((card, i) => (
+          <Styled.Card
+            key={card.id}
+            id={card.id}
+            text={card.text}
+            image={card.image}
+            imageHeight={100}
+            imageWidth={100}
+            title={card.title}
+            url={card.url}
+            onEdit={updateData}
+            deleteCard={deleteCard}
+          />)
+        )
+  }, [data])
   
   return (
     <>
@@ -82,20 +100,7 @@ export const App = () => {
     <Styled.Wrapper>
       <CustomStatusBar background='#888DBD' barStyle='light-content' />
       <Styled.CardsWrapper >
-        {data.length !== 0 ? data.map((card, i) => 
-          <Styled.Card
-            key={card.id}
-            id={card.id}
-            text={card.text}
-            image={card.image}
-            imageHeight={100}
-            imageWidth={100}
-            title={card.title}
-            url={card.url}
-            onEdit={updateData}
-            deleteCard={deleteCard}
-          />
-        ): null}
+        {data.length !== 0 ? dataEntries : null}
       </Styled.CardsWrapper>
       <Styled.Add onPress={() => setIsOpenCreateModal(true)}>
         <Styled.Text>+</Styled.Text>

@@ -12,7 +12,6 @@ const fetchTestApi = async (
   method: HTTP_METHODS,
   reqBody?: IDataEntryInput | Partial<IDataEntryInput>
 ) => {
-  console.log('Start');
   
   const response = await fetch(`https://yourtestapi.com/${path}`, {
     method,
@@ -24,7 +23,6 @@ const fetchTestApi = async (
     throw new Error('http error');
   }
   const data = await response.json();
-  console.log('finish');
 
   return data;
 };
